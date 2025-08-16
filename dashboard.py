@@ -1,0 +1,30 @@
+import streamlit as st
+import pandas as pd
+import boto3
+
+def get_cost_data():
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-2')
+    table = dynamodb.Table('AWS_Cost_Usage')
+
+    # Scan entire table
+    response = table.scan()
+    items = response['Items']
+
+    df = pd.DataFrame(items)
+    df['cost'] = df['cost'].astype(float)
+    return df
+
+st.set_page_config(layout="wide")
+st.title("📊 AWS Cost Dashboard (From DynamoDB)")
+
+df = get_cost_data()
+
+st.subheader("📈 Total AWS Daily Cost")
+st.line_chart(df.groupby('date')['cost'].sum())
+
+st.subheader("📊 Daily Cost per AWS Service")
+pivot_df = df.pivot(index='date', columns='service', values='cost').fillna(0)
+st.bar_chart(pivot_df)
+
+st.subheader("📋 Raw Cost Data")
+st.dataframe(df.sort_values(by=['date', 'cost'], ascending=[False, False]))

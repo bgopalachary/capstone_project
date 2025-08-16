@@ -1,0 +1,41 @@
+name: Deploy Lambda Functions
+
+on:
+  push:
+    branches: [ main ]  # Trigger only on pushes to main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1 — Checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2 — Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Change if needed
+
+      # Step 3 — Deploy Cost Lambda
+      - name: Deploy Cost Lambda
+        run: |
+          cd lambda-cost
+          zip -r ../cost.zip .
+          cd ..
+          aws lambda update-function-code \
+            --function-name YourCostLambdaName \
+            --zip-file fileb://cost.zip
+
+      # Step 4 — Deploy Ticket Lambda
+      - name: Deploy Ticket Lambda
+        run: |
+          cd lambda-ticket
+          zip -r ../ticket.zip .
+          cd ..
+          aws lambda update-function-code \
+            --function-name YourTicketLambdaName \
+            --zip-file fileb://ticket.zip
