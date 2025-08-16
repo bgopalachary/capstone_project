@@ -28,7 +28,8 @@ jobs:
           cd ..
           aws lambda update-function-code \
             --function-name YourCostLambdaName \
-            --zip-file fileb://cost.zip
+            --zip-file fileb://cost.zip \
+            --region us-east-2
 
       # Step 4 — Deploy Ticket Lambda
       - name: Deploy Ticket Lambda
@@ -38,4 +39,5 @@ jobs:
           cd ..
           aws lambda update-function-code \
             --function-name YourTicketLambdaName \
-            --zip-file fileb://ticket.zip
+            --zip-file fileb://ticket.zip \
+            --region us-east-2
