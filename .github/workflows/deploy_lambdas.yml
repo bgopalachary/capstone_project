@@ -41,3 +41,10 @@ jobs:
             --function-name lambda_ticketing \
             --zip-file fileb://ticket.zip \
             --region us-east-2
+       
+        
+      - name: Show commit and AWS region
+        run: |
+           echo "Commit SHA: $GITHUB_SHA"
+           aws configure list
+
