@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       # Step 1 — Checkout repo
       - name: Checkout code
@@ -18,9 +19,17 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2  # Change if needed
+          aws-region: us-east-2
 
-      # Step 3 — Deploy Cost Lambda
+      # Step 3 — Debug AWS environment
+      - name: Debug AWS CLI
+        run: |
+          echo "Commit SHA: $GITHUB_SHA"
+          aws configure list
+          echo "AWS_REGION=$AWS_REGION"
+          echo "AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
+
+      # Step 4 — Deploy Cost Lambda
       - name: Deploy Cost Lambda
         run: |
           cd lambda-cost
@@ -30,8 +39,13 @@ jobs:
             --function-name dailyCostMonitor \
             --zip-file fileb://cost.zip \
             --region us-east-2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-2
+          AWS_DEFAULT_REGION: us-east-2
 
-      # Step 4 — Deploy Ticket Lambda
+      # Step 5 — Deploy Ticket Lambda
       - name: Deploy Ticket Lambda
         run: |
           cd lambda-ticket
@@ -41,10 +55,17 @@ jobs:
             --function-name lambda_ticketing \
             --zip-file fileb://ticket.zip \
             --region us-east-2
-       
-        
-      - name: Show commit and AWS region
-        run: |
-           echo "Commit SHA: $GITHUB_SHA"
-           aws configure list
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-2
+          AWS_DEFAULT_REGION: us-east-2
 
+      # Step 6 — Run dashboard script
+      - name: Run Python dashboard
+        run: python dailyUsage/dashboard.py
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-2
+          AWS_DEFAULT_REGION: us-east-2
