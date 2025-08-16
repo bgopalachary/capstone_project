@@ -27,7 +27,7 @@ jobs:
           zip -r ../cost.zip .
           cd ..
           aws lambda update-function-code \
-            --function-name YourCostLambdaName \
+            --function-name dailyCostMonitor \
             --zip-file fileb://cost.zip \
             --region us-east-2
 
@@ -38,6 +38,6 @@ jobs:
           zip -r ../ticket.zip .
           cd ..
           aws lambda update-function-code \
-            --function-name YourTicketLambdaName \
+            --function-name lambda_ticketing \
             --zip-file fileb://ticket.zip \
             --region us-east-2
