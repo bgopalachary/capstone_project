@@ -1,18 +1,21 @@
 import streamlit as st
 import pandas as pd
 import boto3
+
+# Load secrets
 aws_access_key = st.secrets["AWS_ACCESS_KEY_ID"]
 aws_secret_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
-aws_region = st.secrets.get("AWS_REGION", "us-east-2")
+aws_region = st.secrets.get("AWS_REGION", "us-east-2")  # fallback region
 
+# Create global DynamoDB resource
 dynamodb = boto3.resource(
     'dynamodb',
     aws_access_key_id=aws_access_key,
     aws_secret_access_key=aws_secret_key,
     region_name=aws_region
 )
+
 def get_cost_data():
-    dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('AWS_Cost_Usage')
 
     # Scan entire table
@@ -23,6 +26,7 @@ def get_cost_data():
     df['cost'] = df['cost'].astype(float)
     return df
 
+# Streamlit layout
 st.set_page_config(layout="wide")
 st.title("📊 AWS Cost Dashboard (From DynamoDB)")
 
